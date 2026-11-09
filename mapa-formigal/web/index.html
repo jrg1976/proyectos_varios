@@ -123,7 +123,22 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .loader small { font-family: var(--f-mono); font-size: 11px; color: var(--muted); letter-spacing: .08em; }
 .loader.err small { color: #ffb4a8; }
 
+.nav { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px; }
+.nav button { width: 38px; height: 38px; border-radius: 8px; display: grid; place-items: center; color: var(--fg); touch-action: none; user-select: none; -webkit-user-select: none; }
+.nav button:hover { background: rgba(255,255,255,.1); }
+.nav button:active, .nav button.held { background: var(--accent); color: #1a0b02; }
+.nav .compass { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: rgba(255,255,255,.04); }
+.nav .compass svg { transition: none; }
+.nav hr { width: 26px; border: 0; border-top: 1px solid var(--line); margin: 2px 0; }
+.nav .row { display: flex; gap: 2px; }
+.nav .lbl2 { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.hint b { color: var(--fg); font-weight: 600; }
 @media (max-width: 760px) {
+  .nav { top: auto; bottom: auto; top: calc(118px + env(safe-area-inset-top, 0px)); transform: none; left: auto; right: max(16px, env(safe-area-inset-right, 0px)); padding: 5px 4px; gap: 3px; }
+  .nav button { width: 36px; height: 34px; }
+  .nav .compass { width: 38px; height: 38px; }
+  .nav .lbl2 { display: none; }
+
   .brand { padding: 9px 12px; max-width: calc(100vw - 32px); }
   .brand h1 { font-size: 32px; margin: 2px 0 5px; }
   .counts { font-size: 11.5px; gap: 4px 9px; }
@@ -179,6 +194,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       <label><input type="checkbox" id="lyFood" checked> Restaurantes</label>
       <label><input type="checkbox" id="lyPeaks" checked> Cimas</label>
       <label><input type="checkbox" id="lyNames" checked> Nombres de pistas</label>
+      <label><input type="checkbox" id="lySanta" checked> Papá Noel</label>
       <div class="legend">
         <span><i style="background:var(--green)"></i>Verde</span>
         <span><i style="background:var(--blue)"></i>Azul</span>
@@ -207,7 +223,26 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   <div class="readout" id="readout"></div>
 </div>
 
-<div class="hint" id="hint">Arrastra para moverte · clic derecho o dos dedos para girar · toca una pista</div>
+<nav class="nav panel" aria-label="Navegación del mapa">
+  <button class="compass" id="nvNorth" title="Orientar al norte" aria-label="Orientar al norte">
+    <svg id="needle" width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2l4 11h-8z" fill="#ff6a1a"/><path d="M13 24l-4-11h8z" fill="#c9d6e2"/><text x="13" y="9.6" text-anchor="middle" font-size="5.5" font-family="IBM Plex Mono, monospace" font-weight="700" fill="#1a0b02">N</text></svg>
+  </button>
+  <div class="row">
+    <button id="nvRotL" data-hold="rot" data-dir="-1" title="Girar a la izquierda (Q)" aria-label="Girar a la izquierda"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9a6.5 6.5 0 1 1 1.9 5.6"/><path d="M4 4v5h5"/></svg></button>
+    <button id="nvRotR" data-hold="rot" data-dir="1" title="Girar a la derecha (E)" aria-label="Girar a la derecha"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M16 9a6.5 6.5 0 1 0-1.9 5.6"/><path d="M16 4v5h-5"/></svg></button>
+  </div>
+  <span class="lbl2">Girar</span>
+  <hr>
+  <button data-hold="tilt" data-dir="-1" title="Ver más desde arriba (R)" aria-label="Ver más desde arriba"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5-5 5 5"/></svg></button>
+  <span class="lbl2">Inclinar</span>
+  <button data-hold="tilt" data-dir="1" title="Ver más el horizonte (F)" aria-label="Ver más el horizonte"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+  <hr>
+  <button data-hold="zoom" data-dir="-1" title="Acercar (+)" aria-label="Acercar"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg></button>
+  <button data-hold="zoom" data-dir="1" title="Alejar (−)" aria-label="Alejar"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 8h12"/></svg></button>
+  <hr>
+  <button id="nvHome" title="Vista general (H)" aria-label="Vista general"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 16.5l5-9 3 5 2-3 5 7z"/><circle cx="14.5" cy="4.5" r="1.6"/></svg></button>
+</nav>
+<div class="hint" id="hint"></div>
 <div class="credits">Mapa no oficial; no refleja la apertura del día. Pistas y remontes © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL). Relieve MDT05 y ortofoto PNOA © <a href="https://www.ign.es" target="_blank" rel="noopener">IGN</a> (CC BY 4.0).</div>
 <div class="caption" id="caption" style="opacity:0"><div class="eyebrow" id="capEy"></div><strong id="capT"></strong><p id="capP"></p></div>
 <div class="tip" id="tip" hidden></div>
@@ -348,10 +383,11 @@ function init(data, hbuf, winterImg, normalImg) {
   controls = new THREE.MapControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.dampingFactor = 0.08;
   controls.screenSpacePanning = false; controls.maxPolarAngle = 1.38; controls.minDistance = 350; controls.maxDistance = 24000;
-  controls.zoomSpeed = 1.1; controls.rotateSpeed = 0.6;
-  const stop = () => { userTouched = true; autoRotate = false; if (tour) endTour(); camAnim = null; hideHint(); };
-  renderer.domElement.addEventListener('pointerdown', stop);
-  renderer.domElement.addEventListener('wheel', stop, { passive: true });
+  controls.zoomSpeed = 1.1; controls.rotateSpeed = 0.9; controls.panSpeed = 1;
+  controls.listenToKeyEvents(window); controls.keyPanSpeed = 30;
+  buildSanta();
+  setupNav();
+  if (TEST) window.__follow = startFollow;
 
   // intro camera: from high above down to the overview
   const c = skiCenter();
@@ -945,6 +981,7 @@ function buildUI() {
   el.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; $('layers').hidden = true; $('layersBtn').setAttribute('aria-expanded', false); $('results').hidden = true; });
   el.addEventListener('pointerup', (e) => {
     if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6 || e.button !== 0) return;
+    if (hitSanta(e.clientX, e.clientY)) { startFollow(); return; }
     const h = pick(e.clientX, e.clientY);
     if (h) { h.type === 'piste' ? selectPiste(h.ref) : selectLift(h.ref); } else closeInfo();
   });
@@ -955,11 +992,252 @@ function buildUI() {
     const h = pick(e.clientX, e.clientY), tip = $('tip');
     const changed = (h && h.ref) !== (hovered && hovered.ref);
     hovered = h; if (changed) setHighlight();
-    el.style.cursor = h ? 'pointer' : '';
+    const onSanta = hitSanta(e.clientX, e.clientY);
+    el.style.cursor = h || onSanta ? 'pointer' : '';
+    if (onSanta) { tip.hidden = false; tip.textContent = 'Papá Noel · toca para seguirle'; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; return; }
     if (h) { tip.hidden = false; tip.textContent = h.type === 'piste' ? `${h.ref.name} · ${DIFF_LABEL[h.ref.diff].split(' · ')[0]}` : `${h.ref.label} ${h.ref.name}`; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; }
     else tip.hidden = true;
   });
   el.addEventListener('pointerleave', () => { $('tip').hidden = true; });
+}
+
+/* ---------------- navigation ---------------- */
+const holds = new Map();       // kind -> {dir, start, until}
+const wheel = { logF: 0, anchor: null };
+let follow = null;
+function stopAuto() { userTouched = true; autoRotate = false; if (tour) endTour(); camAnim = null; follow = null; hideHint(); }
+// put the orbit pivot on the ground at the centre of the screen, without moving the view
+function reanchor() {
+  const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+  const hit = rayTerrain(camera.position, dir);
+  if (!hit) return;
+  const d = hit.distanceTo(camera.position);
+  if (d > controls.minDistance * 1.05 && d < controls.maxDistance * 0.95) controls.target.copy(hit);
+}
+function setupNav() {
+  const el = renderer.domElement, stage = $('stage');
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  $('hint').innerHTML = coarse
+    ? '<b>Un dedo</b> mueve · <b>dos dedos</b> giran, inclinan y hacen zoom · botones a la derecha'
+    : '<b>Arrastrar</b> mueve · <b>clic derecho</b> (o Ctrl + arrastrar) gira e inclina · <b>rueda</b> acerca hacia el cursor · <b>doble clic</b> vuela al punto';
+  el.addEventListener('pointerdown', (e) => { stopAuto(); reanchor(); }, true);
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
+  // wheel: zoom towards the point under the cursor (captured before OrbitControls)
+  stage.addEventListener('wheel', (e) => {
+    e.preventDefault(); e.stopPropagation(); stopAuto();
+    const r = el.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    wheel.anchor = rayTerrain(ray.ray.origin, ray.ray.direction) || controls.target.clone();
+    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+    wheel.logF = THREE.MathUtils.clamp(wheel.logF + dy * 0.0016, -1.2, 1.2);
+  }, { capture: true, passive: false });
+  el.addEventListener('dblclick', (e) => {
+    const r = el.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = rayTerrain(ray.ray.origin, ray.ray.direction); if (!hit) return;
+    stopAuto(); const s = currentSpherical(); flyTo(hit, Math.max(700, s.r * 0.45), null, null, 1100);
+  });
+  // on-screen buttons: press and hold for continuous movement
+  document.querySelectorAll('.nav [data-hold]').forEach(b => {
+    const kind = b.dataset.hold, dir = +b.dataset.dir;
+    const on = (e) => { e.preventDefault(); stopAuto(); reanchor(); b.setPointerCapture?.(e.pointerId); b.classList.add('held'); holds.set(kind, { dir, start: performance.now(), until: 0 }); };
+    const off = () => { b.classList.remove('held'); const h = holds.get(kind); if (h) h.until = h.start + 280; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+    b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stopAuto(); reanchor(); holds.set(kind, { dir, start: performance.now(), until: performance.now() + 300 }); } });
+  });
+  $('nvNorth').addEventListener('click', () => { stopAuto(); reanchor(); flyTo(controls.target.clone(), currentSpherical().r, null, 0, 900); });
+  $('nvHome').addEventListener('click', goHome);
+  // keyboard: Q/E rotate, R/F tilt, +/- zoom, H home (arrows pan via OrbitControls)
+  const KEYS = { q: ['rot', -1], e: ['rot', 1], r: ['tilt', -1], f: ['tilt', 1], '+': ['zoom', -1], '=': ['zoom', -1], '-': ['zoom', 1] };
+  addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input, textarea')) return;
+    const k = e.key.toLowerCase();
+    if (k === 'h') { goHome(); return; }
+    const m = KEYS[k]; if (!m || e.repeat) return;
+    stopAuto(); reanchor(); holds.set(m[0], { dir: m[1], start: performance.now(), until: 0 });
+  });
+  addEventListener('keyup', (e) => { const m = KEYS[e.key.toLowerCase()]; if (m && holds.get(m[0])) holds.get(m[0]).until = performance.now(); });
+}
+function goHome() { stopAuto(); closeInfo(); flyTo(skiCenter(), 8200, 1.0, 0.82, 1800); }
+function applyHolds(dt, now) {
+  if (!holds.size) return;
+  const s = currentSpherical();
+  for (const [kind, h] of holds) {
+    if (h.until && now > h.until) { holds.delete(kind); continue; }
+    const ramp = Math.min(1, (now - h.start) / 250) * 0.6 + 0.4;
+    if (kind === 'rot') s.az += h.dir * dt * 1.1 * ramp;
+    if (kind === 'tilt') s.polar = THREE.MathUtils.clamp(s.polar + h.dir * dt * 0.7 * ramp, 0.12, controls.maxPolarAngle);
+    if (kind === 'zoom') s.r = THREE.MathUtils.clamp(s.r * Math.exp(h.dir * dt * 1.4 * ramp), controls.minDistance, controls.maxDistance);
+  }
+  setCamSpherical(controls.target, s.r, s.polar, s.az);
+}
+function applyWheel() {
+  if (Math.abs(wheel.logF) < 1e-4 || !wheel.anchor) { wheel.logF = 0; return; }
+  const step = wheel.logF * 0.22; wheel.logF -= step;
+  let f = Math.exp(step);
+  const d = camera.position.distanceTo(controls.target);
+  f = THREE.MathUtils.clamp(d * f, controls.minDistance, controls.maxDistance) / d;
+  const a = wheel.anchor;
+  camera.position.sub(a).multiplyScalar(f).add(a);
+  controls.target.sub(a).multiplyScalar(f).add(a);
+}
+
+/* ---------------- Papá Noel ---------------- */
+let santa = null;
+function buildSanta() {
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: o.r ?? .55, metalness: o.m || 0, flatShading: true, emissive: o.e || 0, emissiveIntensity: o.ei || 0 });
+  const red = M(0x7e0614, { r: .45 }), gold = M(0xe0ac2a, { m: .7, r: .3 }), white = M(0xf7f7f3), skin = M(0xf2c6a0), black = M(0x16161a),
+    fur = M(0x5a3214), furDark = M(0x341c0a), antlerM = M(0xb89a70), sackM = M(0x6e4520), green = M(0x1e7d3c);
+  const add = (geo, mat, x, y, z, parent) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+  const outer = new THREE.Group(), model = new THREE.Group();
+  model.rotation.y = -Math.PI / 2;           // model faces +x; outer.lookAt aims +z
+  outer.add(model); scene.add(outer);
+
+  // sleigh
+  const sl = new THREE.Group(); model.add(sl);
+  add(new THREE.BoxGeometry(2.3, .75, 1.4), red, 0, .4, 0, sl);
+  add(new THREE.BoxGeometry(.3, 1.25, 1.4), red, -1.05, .85, 0, sl);
+  const nose = add(new THREE.BoxGeometry(.9, .55, 1.4), red, 1.25, .62, 0, sl); nose.rotation.z = .55;
+  add(new THREE.BoxGeometry(2.5, .09, 1.5), gold, -.05, .8, 0, sl);
+  for (const z of [-.62, .62]) {
+    add(new THREE.BoxGeometry(2.9, .09, .09), gold, .05, -.32, z, sl);
+    const curl = add(new THREE.TorusGeometry(.36, .055, 6, 14, Math.PI * 1.3), gold, 1.5, .02, z, sl); curl.rotation.z = -Math.PI * .55;
+    for (const x of [-.8, .7]) add(new THREE.BoxGeometry(.07, .5, .07), gold, x, -.1, z, sl);
+  }
+  // Santa
+  add(new THREE.CylinderGeometry(.36, .48, .9, 10), red, -.25, 1.15, 0, sl);
+  const belt = add(new THREE.TorusGeometry(.43, .06, 6, 14), black, -.25, 1.05, 0, sl); belt.rotation.x = Math.PI / 2;
+  add(new THREE.BoxGeometry(.14, .14, .05), gold, -.25 + .42, 1.05, 0, sl).rotation.y = Math.PI / 2;
+  add(new THREE.SphereGeometry(.27, 12, 10), skin, -.22, 1.82, 0, sl);
+  const beard = add(new THREE.SphereGeometry(.3, 10, 8), white, -.08, 1.66, 0, sl); beard.scale.set(.75, 1.05, .95);
+  add(new THREE.SphereGeometry(.06, 8, 6), M(0xe08a7a), .05, 1.83, 0, sl);
+  const brim = add(new THREE.TorusGeometry(.26, .07, 6, 14), white, -.24, 2.02, 0, sl); brim.rotation.x = Math.PI / 2;
+  const hat = add(new THREE.ConeGeometry(.25, .6, 10), red, -.38, 2.28, 0, sl); hat.rotation.z = .65;
+  add(new THREE.SphereGeometry(.09, 8, 6), white, -.62, 2.42, 0, sl);
+  for (const z of [-.42, .42]) {
+    const arm = add(new THREE.CylinderGeometry(.1, .12, .75, 8), red, .1, 1.35, z, sl); arm.rotation.z = -1.1;
+    add(new THREE.SphereGeometry(.1, 8, 6), black, .42, 1.5, z, sl);
+  }
+  // sack + presents
+  const sack = add(new THREE.SphereGeometry(.55, 10, 8), sackM, -.8, 1.15, 0, sl); sack.scale.set(.9, 1.15, 1);
+  [[.6, 1.25, .5, red], [.5, .9, -.45, green], [.35, 1.55, -.3, gold]].forEach(([s2, y, z, m]) => add(new THREE.BoxGeometry(s2, s2, s2), m, -.75, y, z, sl).rotation.y = .5);
+
+  // reindeer
+  const deer = [];
+  const reindeer = (x, z, rudolph) => {
+    const g = new THREE.Group(); g.position.set(x, .2, z); model.add(g);
+    const body = add(new THREE.CapsuleGeometry(.27, .85, 4, 10), fur, 0, .55, 0, g); body.rotation.z = Math.PI / 2;
+    add(new THREE.SphereGeometry(.2, 8, 6), white, -.62, .62, 0, g).scale.set(.6, .6, .6);
+    const neck = add(new THREE.CylinderGeometry(.13, .18, .55, 8), fur, .55, .85, 0, g); neck.rotation.z = -.7;
+    const head = add(new THREE.BoxGeometry(.48, .28, .28), fur, .82, 1.08, 0, g); head.rotation.z = -.15;
+    add(new THREE.BoxGeometry(.2, .2, .22), furDark, 1.05, 1.02, 0, g);
+    for (const s2 of [-1, 1]) {
+      const a1 = add(new THREE.CylinderGeometry(.03, .04, .5, 5), antlerM, .7, 1.42, .1 * s2, g); a1.rotation.x = .45 * s2; a1.rotation.z = .3;
+      const a2 = add(new THREE.CylinderGeometry(.025, .03, .28, 5), antlerM, .82, 1.5, .2 * s2, g); a2.rotation.z = -.6;
+      const a3 = add(new THREE.CylinderGeometry(.025, .03, .25, 5), antlerM, .62, 1.62, .22 * s2, g); a3.rotation.z = .9;
+      add(new THREE.ConeGeometry(.07, .16, 5), furDark, .74, 1.24, .13 * s2, g).rotation.x = .9 * s2;
+    }
+    const noseM = rudolph ? new THREE.MeshBasicMaterial({ color: 0xff2a1a }) : black;
+    add(new THREE.SphereGeometry(rudolph ? .1 : .07, 8, 6), noseM, 1.17, 1.04, 0, g);
+    if (rudolph) {
+      const c = document.createElement('canvas'); c.width = c.height = 64; const x2 = c.getContext('2d');
+      const gr = x2.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,90,60,1)'); gr.addColorStop(.35, 'rgba(255,40,20,.55)'); gr.addColorStop(1, 'rgba(255,0,0,0)');
+      x2.fillStyle = gr; x2.fillRect(0, 0, 64, 64);
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+      glow.position.set(1.2, 1.04, 0); glow.scale.setScalar(1.4); g.add(glow); g.userData.glow = glow;
+    }
+    const legs = [];
+    for (const [lx, lz] of [[.38, .14], [.38, -.14], [-.38, .14], [-.38, -.14]]) {
+      const pivot = new THREE.Group(); pivot.position.set(lx, .4, lz); g.add(pivot);
+      add(new THREE.CylinderGeometry(.05, .06, .62, 6), fur, 0, -.31, 0, pivot);
+      add(new THREE.BoxGeometry(.1, .08, .1), furDark, .02, -.62, 0, pivot);
+      legs.push(pivot);
+    }
+    deer.push({ g, legs, phase: Math.random() * 6, rudolph });
+    return g;
+  };
+  const reinM = new THREE.LineBasicMaterial({ color: 0xe0ac2a });
+  for (let i = 0; i < 4; i++) for (const z of [-.45, .45]) {
+    const x = 2.9 + i * 2.05; reindeer(x, z, false);
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(1.4, .9, z * .8), new THREE.Vector3(x + .5, 1.05, z)]);
+    model.add(new THREE.Line(geo, reinM));
+  }
+  const rx = 2.9 + 4 * 2.05; reindeer(rx, 0, true);
+  for (const z of [-.45, .45]) model.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(rx - 2.05 + .5, 1.05, z), new THREE.Vector3(rx + .5, 1.05, 0)]), reinM));
+  const tail = new THREE.Object3D(); tail.position.set(-1.3, .5, 0); model.add(tail);
+  const mid = new THREE.Object3D(); mid.position.set(5, .8, 0); model.add(mid);
+  outer.scale.setScalar(17);
+
+  // sparkle trail
+  const N = 320, tp = new Float32Array(N * 3), tc = new Float32Array(N * 3);
+  const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.BufferAttribute(tp, 3)); tg.setAttribute('color', new THREE.BufferAttribute(tc, 3));
+  const sc = document.createElement('canvas'); sc.width = sc.height = 32; const sx = sc.getContext('2d');
+  const sg = sx.createRadialGradient(16, 16, 0, 16, 16, 16); sg.addColorStop(0, 'rgba(255,255,240,1)'); sg.addColorStop(.3, 'rgba(255,215,120,.8)'); sg.addColorStop(1, 'rgba(255,200,80,0)');
+  sx.fillStyle = sg; sx.fillRect(0, 0, 32, 32);
+  const trail = new THREE.Points(tg, new THREE.PointsMaterial({ size: 6, sizeAttenuation: false, map: new THREE.CanvasTexture(sc), vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  trail.frustumCulled = false; scene.add(trail);
+  const center = skiCenter();
+  santa = { outer, deer, tail, mid, trail, N, tp, tc, head: 0, acc: 0, seeds: Float32Array.from({ length: N * 3 }, () => Math.random() - .5), center, pos: new THREE.Vector3(), fwd: new THREE.Vector3() };
+  for (let i = 0; i < N; i++) tp.set([0, -9999, 0], i * 3);
+}
+function santaPath(t, out) {
+  const c = santa.center, th = t * Math.PI * 2 / 85;
+  return out.set(c.x + 3900 * Math.cos(th) + 700 * Math.sin(2 * th), c.y + 1150 + 160 * Math.sin(3 * th), c.z + 3000 * Math.sin(th));
+}
+const _p2 = new THREE.Vector3(), _w = new THREE.Vector3();
+function updateSanta(t, dt) {
+  if (!santa) return;
+  const on = $('lySanta').checked;
+  santa.outer.visible = on; santa.trail.visible = on;
+  if (!on) { if (follow) follow = null; return; }
+  santaPath(t, santa.pos); santaPath(t + 0.4, _p2);
+  santa.fwd.copy(_p2).sub(santa.pos).normalize();
+  santa.outer.position.copy(santa.pos); santa.outer.lookAt(_p2); santa.outer.rotateZ(-0.16);
+  santa.deer.forEach((d, i) => {
+    const ph = t * 7 + d.phase;
+    d.g.position.y = .2 + Math.sin(ph) * .12;
+    d.legs.forEach((l, k) => { l.rotation.z = Math.sin(ph + (k < 2 ? 0 : Math.PI)) * .75; });
+    if (d.g.userData.glow) d.g.userData.glow.scale.setScalar(1.3 + Math.sin(t * 5) * .35);
+  });
+  // emit sparkles from the back of the sleigh
+  santa.acc += dt * 90;
+  santa.tail.getWorldPosition(_w);
+  const { tp, tc, N, seeds } = santa;
+  while (santa.acc >= 1) {
+    santa.acc -= 1; santa.head = (santa.head + 1) % N;
+    const i = santa.head * 3;
+    tp[i] = _w.x + seeds[i] * 22; tp[i + 1] = _w.y + seeds[i + 1] * 22; tp[i + 2] = _w.z + seeds[i + 2] * 22;
+  }
+  for (let k = 0; k < N; k++) {
+    const age = ((santa.head - k + N) % N) / N, i = k * 3, b = Math.pow(1 - age, 1.6) * (0.75 + 0.25 * Math.sin(t * 12 + k));
+    tc[i] = b; tc[i + 1] = b * .72; tc[i + 2] = b * .25;
+    tp[i + 1] -= dt * 14;          // sparkles drift down slowly
+  }
+  santa.trail.geometry.attributes.position.needsUpdate = true; santa.trail.geometry.attributes.color.needsUpdate = true;
+}
+function hitSanta(cx, cy) {
+  if (!santa || !$('lySanta').checked) return false;
+  santa.mid.getWorldPosition(_w); const v = _w.clone().project(camera);
+  if (v.z > 1) return false;
+  const r = renderer.domElement.getBoundingClientRect();
+  const sx = (v.x + 1) / 2 * r.width + r.left, sy = (1 - v.y) / 2 * r.height + r.top;
+  const rad = Math.max(40, 160 / (camera.position.distanceTo(_w) * pxUniform.value));
+  return Math.hypot(cx - sx, cy - sy) < rad;
+}
+function startFollow() {
+  closeInfo(); autoRotate = false; if (tour) endTour(); camAnim = null; follow = { t: 0 };
+  showCaption('¡Ho, ho, ho!', 'Papá Noel', 'Sobrevolando Formigal · toca el mapa para volver', 4200);
+}
+function followSanta(dt) {
+  follow.t += dt;
+  const side = new THREE.Vector3().crossVectors(santa.fwd, THREE.Object3D.DefaultUp).normalize();
+  const desired = santa.pos.clone().addScaledVector(santa.fwd, -260).addScaledVector(side, -480).add(new THREE.Vector3(0, 150, 0));
+  const k = TEST ? 1 : 1 - Math.exp(-dt * (follow.t < 2 ? 1.6 : 3.5));
+  camera.position.lerp(desired, k);
+  controls.target.lerp(santa.pos.clone().addScaledVector(santa.fwd, 110), k);
+  camera.lookAt(controls.target);
 }
 
 /* ---------------- loop ---------------- */
@@ -972,17 +1250,25 @@ function frame(now) {
   const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
   timeUniform.value = now / 1000;
   pxUniform.value = 2 * Math.tan(camera.fov * Math.PI / 360) / renderer.domElement.clientHeight;
+  updateSanta(now / 1000, dt);
   if (camAnim) camAnim(now);
+  else if (follow) followSanta(Math.min(0.25, (now - (follow.last || now)) / 1000) || dt), follow && (follow.last = now);
   else {
     if ((autoRotate || (tour && tour.orbit)) && !reduceMotion) {
       const s = currentSpherical(); setCamSpherical(controls.target, s.r, s.polar, s.az + dt * (tour ? 0.05 : 0.035));
     }
+    applyHolds(dt, now);
+    applyWheel();
     controls.update();
   }
+  $('needle').style.transform = `rotate(${(-currentSpherical().az * 180 / Math.PI).toFixed(1)}deg)`;
   // keep target on the map and camera above ground
   controls.target.x = THREE.MathUtils.clamp(controls.target.x, -W / 2, W / 2);
   controls.target.z = THREE.MathUtils.clamp(controls.target.z, -H / 2, H / 2);
-  const ty = heightAt(controls.target.x, controls.target.z); controls.target.y += (ty - controls.target.y) * 0.08;
+  if (!camAnim && !follow) {
+    const ty = heightAt(controls.target.x, controls.target.z), dy = (ty - controls.target.y) * 0.08;
+    controls.target.y += dy; camera.position.y += dy;
+  }
   if (inside(camera.position.x, camera.position.z)) {
     const g = heightAt(camera.position.x, camera.position.z) + 60;
     if (camera.position.y < g) camera.position.y = g;
